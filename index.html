@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Онлайн-Школа | Подготовка к ЕГЭ и ОГЭ</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --accent: #06b6d4;
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .brand-icon {
+            background: var(--primary);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 12px;
+            list-style: none;
+        }
+
+        .nav-link-item {
+            padding: 8px 16px;
+            color: var(--text-muted);
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-link-item:hover, .nav-link-item.active {
+            color: #fff;
+            background-color: rgba(79, 70, 229, 0.25);
+            border: 1px solid rgba(79, 70, 229, 0.4);
+        }
+
+        .server-status {
+            font-size: 0.8rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .subnav {
+            background-color: rgba(30, 41, 59, 0.8);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+
+        .btn-outline:hover, .btn-outline.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn-tasks {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+            margin-left: auto;
+        }
+
+        .math-toggle-group {
+            display: inline-flex;
+            background: #0f172a;
+            padding: 3px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-left: 6px;
+        }
+
+        .math-toggle-btn {
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .math-toggle-btn.active { background: var(--primary); color: white; }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            width: 100%;
+        }
+
+        .drawer-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            display: none;
+        }
+
+        .drawer-overlay.active { display: block; }
+
+        .drawer {
+            position: fixed;
+            top: 0; left: -320px; width: 320px; height: 100%;
+            background-color: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            z-index: 201;
+            transition: left 0.3s ease;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .drawer.active { left: 0; }
+
+        .drawer-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 24px; padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .drawer-close {
+            background: transparent; border: none; color: var(--text-muted);
+            font-size: 1.5rem; cursor: pointer;
+        }
+
+        .drawer-item {
+            padding: 14px 16px; border-radius: 10px; color: var(--text-muted);
+            cursor: pointer; margin-bottom: 8px; display: flex; align-items: center;
+            gap: 12px; font-weight: 500; transition: all 0.2s;
+        }
+
+        .drawer-item:hover, .drawer-item.active {
+            background: rgba(79, 70, 229, 0.2); color: white;
+            border-left: 4px solid var(--primary);
+        }
+
+        .tutor-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .tutor-info { display: flex; align-items: flex-start; gap: 20px; }
+
+        .avatar-silhouette {
+            width: 72px; height: 72px; border-radius: 50%;
+            background: #0f172a; border: 2px solid var(--border-color);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+
+        .avatar-silhouette svg { width: 40px; height: 40px; fill: #64748b; }
+
+        .tutor-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
+        .tutor-meta { display: flex; align-items: center; gap: 12px; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
+        .rating-star { color: var(--warning); font-weight: 600; }
+        .price-badge { color: var(--success); font-weight: 700; }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px);
+            z-index: 300; display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px; width: 100%; max-width: 700px;
+            max-height: 90vh; overflow-y: auto; padding: 28px;
+        }
+
+        .modal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-close { background: transparent; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
+
+        .task-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+
+        .task-num-btn {
+            width: 40px; height: 40px; border-radius: 8px; background: #0f172a;
+            border: 1px solid var(--border-color); color: white; font-weight: 600;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+
+        .task-num-btn:hover, .task-num-btn.active { background: var(--primary); border-color: var(--primary); }
+
+        .task-card { background: #0f172a; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-muted); }
+        .form-control { width: 100%; padding: 10px 14px; background: #0f172a; border: 1px solid var(--border-color); border-radius: 8px; color: white; }
+
+        .role-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .role-card { border: 2px solid var(--border-color); background: #0f172a; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; }
+        .role-card.selected { border-color: var(--primary); background: rgba(79, 70, 229, 0.15); }
+
+        .under-dev { text-align: center; padding: 80px 20px; }
+        .under-dev-icon { font-size: 4rem; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="brand" onclick="switchMainSection('обычное')">
+            <div class="brand-icon">🎓</div>
+            <span>ВУЗ-ШКОЛА</span>
+        </div>
+
+        <ul class="nav-links">
+            <li class="nav-link-item active" id="nav-обычное" onclick="switchMainSection('обычное')">Обычное</li>
+            <li class="nav-link-item" id="nav-бауманка" onclick="switchMainSection('бауманка')">Бауманка</li>
+            <li class="nav-link-item" id="nav-английский" onclick="switchMainSection('английский')">Английский язык</li>
+        </ul>
+
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="server-status">📁 D:\school (Сервер)</div>
+            <div id="authNavSection"></div>
+        </div>
+    </nav>
+
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+    <div class="drawer" id="drawer">
+        <div class="drawer-header">
+            <h3>Программа</h3>
+            <button class="drawer-close" onclick="closeDrawer()">&times;</button>
+        </div>
+        <div class="drawer-item active" id="drawer-ege" onclick="selectSubcategory('ege')">🎯 Подготовка к ЕГЭ</div>
+        <div class="drawer-item" id="drawer-oge" onclick="selectSubcategory('oge')">📝 Подготовка к ОГЭ</div>
+        <div class="drawer-item" id="drawer-grades" onclick="selectSubcategory('grades')">📈 Повышение успеваемости</div>
+    </div>
+
+    <div id="mainView" style="flex: 1;"></div>
+
+    <div class="modal-overlay" id="tasksModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="tasksModalTitle">Задания</h3>
+                <button class="modal-close" onclick="closeModal('tasksModal')">&times;</button>
+            </div>
+            <div class="task-grid" id="taskNumbersGrid"></div>
+            <hr style="border-color: var(--border-color); margin: 20px 0;">
+            <div id="taskContentBox"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="bookingModal">
+        <div class="modal-card" style="max-width: 480px;">
+            <div class="modal-header">
+                <h3 id="bookingTutorTitle">Запись</h3>
+                <button class="modal-close" onclick="closeModal('bookingModal')">&times;</button>
+            </div>
+            <form onsubmit="submitBooking(event)">
+                <input type="hidden" id="bookTutorId">
+                <div class="form-group"><label class="form-label">Программа</label><input type="text" id="bookSubject" class="form-control" readonly></div>
+                <div class="form-group"><label class="form-label">Дата</label><input type="date" id="bookDate" class="form-control" required></div>
+                <div class="form-group"><label class="form-label">Время</label>
+                    <select id="bookTime" class="form-control" required>
+                        <option value="12:00 - 13:00">12:00 - 13:00</option>
+                        <option value="15:00 - 16:00">15:00 - 16:00</option>
+                        <option value="17:00 - 18:00">17:00 - 18:00</option>
+                        <option value="19:00 - 20:00">19:00 - 20:00</option>
+                    </select>
+                </div>
+                <div class="form-group"><label class="form-label">Имя</label><input type="text" id="bookName" class="form-control" placeholder="Иван" required></div>
+                <div class="form-group"><label class="form-label">Контакты</label><input type="text" id="bookContact" class="form-control" placeholder="+7 (999) 000-00-00" required></div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Записаться</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-card" style="max-width: 420px;">
+            <div class="modal-header">
+                <h3>Вход</h3>
+                <button class="modal-close" onclick="closeModal('authModal')">&times;</button>
+            </div>
+            <form onsubmit="handleAuth(event)">
+                <div class="role-cards">
+                    <div class="role-card selected" id="role-student" onclick="setRole('student')">👨‍🎓<br><strong>Ученик</strong></div>
+                    <div class="role-card" id="role-tutor" onclick="setRole('tutor')">👨‍🏫<br><strong>Преподаватель</strong></div>
+                </div>
+                <input type="hidden" id="authRole" value="student">
+                <div class="form-group"><label class="form-label">Email</label><input type="email" id="authEmail" class="form-control" required></div>
+                <div class="form-group"><label class="form-label">Пароль</label><input type="password" id="authPassword" class="form-control" required></div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">Продолжить</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+        let state = {
+            user: JSON.parse(localStorage.getItem('school_user')) || null,
+            mainSection: 'обычное',
+            subCategory: 'ege',
+            subject: 'math',
+            mathType: 'profile',
+            taskNum: 1
+        };
+
+        const tutorsDatabase = {
+            'ege-math-profile': [
+                { id: 't1', name: 'Александр Сергеевич Власов', exp: '11 лет', price: '2500 ₽/ч', rating: '4.98', bio: 'Выпускник МФТИ. Специалист по параметрам и стереометрии (№13-19).' },
+                { id: 't2', name: 'Елена Дмитриевна Орлова', exp: '8 лет', price: '2200 ₽/ч', rating: '4.95', bio: 'Экспресс-подготовка. Средний балл учеников в 2025 г. — 88+ баллов.' },
+                { id: 't3', name: 'Михаил Юрьевич Морозов', exp: '14 лет', price: '2800 ₽/ч', rating: '4.92', bio: 'Эксперт ЕГЭ. Понятный разбор сложных математических задач.' }
+            ],
+            'ege-math-base': [
+                { id: 't4', name: 'Ольга Николаевна Зайцева', exp: '6 лет', price: '1500 ₽/ч', rating: '4.90', bio: 'Подготовка к базовой математике на высшую оценку.' },
+                { id: 't5', name: 'Павел Андреевич Соколов', exp: '5 лет', price: '1400 ₽/ч', rating: '4.88', bio: 'Пошаговый проход всех 21 номеров баз. уровня.' },
+                { id: 't6', name: 'Анна Игоревна Кравцова', exp: '7 лет', price: '1600 ₽/ч', rating: '4.93', bio: 'Терпеливое объяснение заданий с понятными примерами.' }
+            ],
+            'ege-physics': [
+                { id: 't7', name: 'Игорь Владимирович Смирнов', exp: '15 лет', price: '2700 ₽/ч', rating: '4.99', bio: 'К.ф.-м.н., Бауманка. Подготовка к сложным задачам (21-26).' },
+                { id: 't8', name: 'Дмитрий Васильевич Попов', exp: '10 лет', price: '2400 ₽/ч', rating: '4.94', bio: 'Действующий эксперт проверки ЕГЭ по физике.' },
+                { id: 't9', name: 'Наталья Борисовна Жукова', exp: '9 лет', price: '2100 ₽/ч', rating: '4.91', bio: 'Разбор всех графических и экспериментальных заданий.' }
+            ],
+            'ege-russian': [
+                { id: 't10', name: 'Мария Владимировна Ковалева', exp: '12 лет', price: '2300 ₽/ч', rating: '4.97', bio: 'Эксперт ЕГЭ. Детальная проверка сочинений.' },
+                { id: 't11', name: 'Виктор Алексеевич Белов', exp: '9 лет', price: '2000 ₽/ч', rating: '4.93', bio: 'Филолог МГУ. Четкие алгоритмы для орфографии (№9-21).' },
+                { id: 't12', name: 'Светлана Анатольевна Ефимова', exp: '11 лет', price: '2100 ₽/ч', rating: '4.89', bio: 'Системная методика подготовки к 27 номеру.' }
+            ],
+            'oge-math': [
+                { id: 't13', name: 'Артем Андреевич Козлов', exp: '6 лет', price: '1600 ₽/ч', rating: '4.94', bio: 'Подготовка к ОГЭ с любого уровня. Геометрия (№15-19).' },
+                { id: 't14', name: 'Татьяна Викторовна Мельникова', exp: '8 лет', price: '1700 ₽/ч', rating: '4.91', bio: 'Более 200 учеников сдали ОГЭ на «4» и «5».' },
+                { id: 't15', name: 'Константин Игоревич Волков', exp: '5 лет', price: '1500 ₽/ч', rating: '4.89', bio: 'Разбор реальных вариантов ОГЭ из баз ФИПИ.' }
+            ],
+            'oge-physics': [
+                { id: 't16', name: 'Сергей Николаевич Фролов', exp: '7 лет', price: '1800 ₽/ч', rating: '4.93', bio: 'Учитель лицейских классов. Качественные решения.' },
+                { id: 't17', name: 'Анастасия Олеговна Новикова', exp: '4 года', price: '1500 ₽/ч', rating: '4.88', bio: 'Легко объясняет формулы и законы физики.' },
+                { id: 't18', name: 'Роман Сергеевич Давыдов', exp: '8 лет', price: '1750 ₽/ч', rating: '4.92', bio: 'Инженер. Системная подготовка к расчетным задачам.' }
+            ],
+            'oge-russian': [
+                { id: 't19', name: 'Ольга Васильевна Григорьева', exp: '13 лет', price: '1800 ₽/ч', rating: '4.96', bio: 'Подготовка к изложению и сочинению ОГЭ.' },
+                { id: 't20', name: 'Ирина Ивановна Сорокина', exp: '10 лет', price: '1600 ₽/ч', rating: '4.90', bio: 'Повышение грамотности и гарантированный балл.' },
+                { id: 't21', name: 'Максим Константинович Лебедев', exp: '4 года', price: '1400 ₽/ч', rating: '4.87', bio: 'Интерактивные занятия без лишнего стресса.' }
+            ],
+            'grades-math': [
+                { id: 't22', name: 'Юлия Александровна Романова', exp: '5 лет', price: '1400 ₽/ч', rating: '4.92', bio: 'Помощь с домашними заданиями 5-10 классов.' },
+                { id: 't23', name: 'Денис Валерьевич Громов', exp: '6 лет', price: '1500 ₽/ч', rating: '4.89', bio: 'Индивидуальный подход для школьников.' },
+                { id: 't24', name: 'Надежда Петровна Фомина', exp: '20 лет', price: '1700 ₽/ч', rating: '4.95', bio: 'Педагог высшей категории.' }
+            ],
+            'grades-physics': [
+                { id: 't25', name: 'Андрей Геннадьевич Семенов', exp: '7 лет', price: '1600 ₽/ч', rating: '4.91', bio: 'Наглядная физика для 7-10 классов.' },
+                { id: 't26', name: 'Марина Анатольевна Федорова', exp: '6 лет', price: '1500 ₽/ч', rating: '4.88', bio: 'Помогает полюбить предмет.' },
+                { id: 't27', name: 'Кирилл Игоревич Богданов', exp: '3 года', price: '1300 ₽/ч', rating: '4.85', bio: 'Доступные объяснения физических феноменов.' }
+            ],
+            'grades-russian': [
+                { id: 't28', name: 'Екатерина Павловна Маркова', exp: '9 лет', price: '1500 ₽/ч', rating: '4.94', bio: 'Развитие речи, грамотность и правила.' },
+                { id: 't29', name: 'Валентина Николаевна Ильина', exp: '12 лет', price: '1600 ₽/ч', rating: '4.90', bio: 'Устранение ошибок в диктантах.' },
+                { id: 't30', name: 'Егор Дмитриевич Тарасов', exp: '4 года', price: '1350 ₽/ч', rating: '4.87', bio: 'Интерактивная подтяжка успеваемости.' }
+            ]
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAuthNav();
+            renderMainView();
+        });
+
+        function renderAuthNav() {
+            const sec = document.getElementById('authNavSection');
+            if (state.user) {
+                sec.innerHTML = `<span style="font-size:0.85rem; color:var(--accent); font-weight:600;">${state.user.role === 'tutor' ? '👨‍🏫' : '👨‍🎓'} ${state.user.email}</span> <button class="btn btn-outline" style="padding:4px 8px;" onclick="logout()">Выйти</button>`;
+            } else {
+                sec.innerHTML = `<button class="btn btn-primary" onclick="openModal('authModal')">Войти</button>`;
+            }
+        }
+
+        function switchMainSection(sec) {
+            state.mainSection = sec;
+            document.querySelectorAll('.nav-link-item').forEach(e => e.classList.remove('active'));
+            const activeNav = document.getElementById(`nav-${sec}`);
+            if (activeNav) activeNav.classList.add('active');
+            renderMainView();
+        }
+
+        function renderMainView() {
+            const container = document.getElementById('mainView');
+
+            if (state.mainSection === 'бауманка' || state.mainSection === 'английский') {
+                const title = state.mainSection === 'бауманка' ? 'Раздел «Бауманка»' : 'Раздел «Английский язык»';
+                container.innerHTML = `
+                    <div class="under-dev">
+                        <div class="under-dev-icon">⚙️</div>
+                        <h2>${title}</h2>
+                        <p style="color:var(--text-muted); margin: 12px 0 24px;">Раздел находится в разработке. Скоро здесь появятся новые спецкурсы!</p>
+                        <button class="btn btn-primary" onclick="switchMainSection('обычное')">← Назад</button>
+                    </div>
+                `;
+                return;
+            }
+
+            const isTasksVisible = state.subCategory !== 'grades';
+            const isMathEge = state.subCategory === 'ege' && state.subject === 'math';
+
+            container.innerHTML = `
+                <div class="subnav">
+                    <button class="btn btn-outline" onclick="openDrawer()">☰ Программа: <strong>${getSubCatName()}</strong> ▾</button>
+                    <button class="btn btn-outline ${state.subject === 'physics' ? 'active' : ''}" onclick="setSubject('physics')">⚡ Физика</button>
+                    <div style="display:inline-flex; align-items:center;">
+                        <button class="btn btn-outline ${state.subject === 'math' ? 'active' : ''}" onclick="setSubject('math')">📐 Математика</button>
+                        ${isMathEge ? `
+                            <div class="math-toggle-group">
+                                <button class="math-toggle-btn ${state.mathType === 'base' ? 'active' : ''}" onclick="setMathType('base')">База</button>
+                                <button class="math-toggle-btn ${state.mathType === 'profile' ? 'active' : ''}" onclick="setMathType('profile')">Профиль</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <button class="btn btn-outline ${state.subject === 'russian' ? 'active' : ''}" onclick="setSubject('russian')">📖 Русский язык</button>
+                    ${isTasksVisible ? `<button class="btn btn-tasks" onclick="openTasksModal()">📚 Задания (${getExamLabel()})</button>` : ''}
+                </div>
+
+                <div class="container">
+                    <h2 style="font-size: 1.6rem; margin-bottom: 4px;">${getSubjectLabel()} — ${getSubCatName()}</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 24px;">Список репетиторов</p>
+                    <div>${renderTutorsList()}</div>
+                </div>
+            `;
+        }
+
+        function getSubCatName() {
+            if (state.subCategory === 'ege') return 'Подготовка к ЕГЭ';
+            if (state.subCategory === 'oge') return 'Подготовка к ОГЭ';
+            return 'Повышение успеваемости';
+        }
+
+        function getSubjectLabel() {
+            if (state.subject === 'physics') return 'Физика';
+            if (state.subject === 'russian') return 'Русский язык';
+            if (state.subject === 'math') {
+                return state.subCategory === 'ege' ? `Математика (${state.mathType === 'profile' ? 'Профиль' : 'База'})` : 'Математика';
+            }
+            return '';
+        }
+
+        function getExamLabel() {
+            if (state.subCategory === 'ege') return 'ЕГЭ';
+            if (state.subCategory === 'oge') return 'ОГЭ';
+            return '';
+        }
+
+        function openDrawer() {
+            document.getElementById('drawerOverlay').classList.add('active');
+            document.getElementById('drawer').classList.add('active');
+        }
+
+        function closeDrawer() {
+            document.getElementById('drawerOverlay').classList.remove('active');
+            document.getElementById('drawer').classList.remove('active');
+        }
+
+        function selectSubcategory(sub) {
+            state.subCategory = sub;
+            closeDrawer();
+            renderMainView();
+        }
+
+        function setSubject(sub) { state.subject = sub; renderMainView(); }
+        function setMathType(type) { state.mathType = type; renderMainView(); }
+
+        function getTutorCategoryKey() {
+            if (state.subCategory === 'ege') {
+                return state.subject === 'math' ? `ege-math-${state.mathType}` : `ege-${state.subject}`;
+            }
+            if (state.subCategory === 'oge') return `oge-${state.subject}`;
+            return `grades-${state.subject}`;
+        }
+
+        function renderTutorsList() {
+            const key = getTutorCategoryKey();
+            const list = tutorsDatabase[key] || [];
+
+            return list.map(t => `
+                <div class="tutor-card">
+                    <div class="tutor-info">
+                        <div class="avatar-silhouette">
+                            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        </div>
+                        <div>
+                            <div class="tutor-name">${t.name}</div>
+                            <div class="tutor-meta">
+                                <span class="rating-star">★ ${t.rating}</span> • Опыт: ${t.exp} • <span class="price-badge">${t.price}</span>
+                            </div>
+                            <div style="color: var(--text-muted); font-size: 0.95rem;">${t.bio}</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="openBooking('${t.id}', '${t.name}')">Записаться</button>
+                </div>
+            `).join('');
+        }
+
+        function openTasksModal() {
+            let maxCount = 19;
+            if (state.subCategory === 'ege') {
+                if (state.subject === 'math') maxCount = state.mathType === 'profile' ? 19 : 21;
+                if (state.subject === 'physics') maxCount = 26;
+                if (state.subject === 'russian') maxCount = 27;
+            } else if (state.subCategory === 'oge') {
+                if (state.subject === 'math' || state.subject === 'physics') maxCount = 25;
+                if (state.subject === 'russian') maxCount = 13;
+            }
+
+            const grid = document.getElementById('taskNumbersGrid');
+            grid.innerHTML = '';
+            for (let i = 1; i <= maxCount; i++) {
+                grid.innerHTML += `<button class="task-num-btn ${i === state.taskNum ? 'active' : ''}" onclick="selectTaskNum(${i})">№${i}</button>`;
+            }
+
+            document.getElementById('tasksModalTitle').textContent = `Задания ${getExamLabel()}: ${getSubjectLabel()}`;
+            renderTaskContent(state.taskNum);
+            openModal('tasksModal');
+        }
+
+        function selectTaskNum(n) {
+            state.taskNum = n;
+            document.querySelectorAll('.task-num-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderTaskContent(n);
+        }
+
+        function renderTaskContent(n) {
+            const box = document.getElementById('taskContentBox');
+            box.innerHTML = `
+                <h4 style="margin-bottom: 14px; color: var(--warning);">Примеры заданий под №${n}:</h4>
+                ${[1, 2, 3].map(i => `
+                    <div class="task-card">
+                        <div style="font-size:0.75rem; color:var(--accent); margin-bottom:6px;">ФИПИ / РешуЕГЭ • Задание №${n}.${i}</div>
+                        <p style="margin-bottom: 10px;">Условие задачи: Вычислите значение выражения для задания №${n} вариант ${i}.</p>
+                        <div style="font-weight: 600; color: var(--success); margin-bottom: 8px;">Ответ: ${10 + i * n}</div>
+                        <details style="color: var(--text-muted); font-size: 0.85rem;">
+                            <summary style="color: var(--primary); cursor: pointer;">Показать подробное решение</summary>
+                            <div style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; margin-top: 6px; color: #fff;">
+                                Решение: подставляем данные и получаем искомый результат ${10 + i * n}.
+                            </div>
+                        </details>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function openBooking(id, name) {
+            document.getElementById('bookTutorId').value = id;
+            document.getElementById('bookingTutorTitle').textContent = `Запись к: ${name}`;
+            document.getElementById('bookSubject').value = `${getSubjectLabel()} (${getSubCatName()})`;
+            openModal('bookingModal');
+        }
+
+        async function submitBooking(e) {
+            e.preventDefault();
+            const data = {
+                tutorId: document.getElementById('bookTutorId').value,
+                subject: document.getElementById('bookSubject').value,
+                date: document.getElementById('bookDate').value,
+                time: document.getElementById('bookTime').value,
+                name: document.getElementById('bookName').value,
+                contact: document.getElementById('bookContact').value
+            };
+
+            try {
+                await fetch(`${API_URL}/bookings`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+            } catch(e) {}
+
+            closeModal('bookingModal');
+            alert('✅ Запись сохранена!');
+        }
+
+        function setRole(r) {
+            document.getElementById('authRole').value = r;
+            document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+            document.getElementById(`role-${r}`).classList.add('selected');
+        }
+
+        function handleAuth(e) {
+            e.preventDefault();
+            state.user = { role: document.getElementById('authRole').value, email: document.getElementById('authEmail').value };
+            localStorage.setItem('school_user', JSON.stringify(state.user));
+            closeModal('authModal');
+            renderAuthNav();
+        }
+
+        function logout() {
+            state.user = null;
+            localStorage.removeItem('school_user');
+            renderAuthNav();
+        }
+
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    </script>
+</body>
+</html>
