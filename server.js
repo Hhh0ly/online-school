@@ -65,9 +65,10 @@ app.post('/api/bookings', (req, res) => {
 });
 
 // Отдача файла index.html для всех остальной запросов
-app.get('*', (req, res) => {
+app.use((req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
+
 
 app.listen(PORT, () => {
     console.log(`===================================================`);
