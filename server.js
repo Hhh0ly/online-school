@@ -20,19 +20,15 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// --- НАСТРОЙКА ПОЧТЫ (Mail.ru SMTP) ---
+// --- НАСТРОЙКА ПОЧТЫ (Gmail SMTP) ---
 const transporter = nodemailer.createTransport({
-    host: 'smtp.mail.ru',
-    port: 587,
-    secure: false, // TLS
+    service: 'gmail',
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
-    },
-    tls: {
-        rejectUnauthorized: false
     }
 });
+
 
 
 
