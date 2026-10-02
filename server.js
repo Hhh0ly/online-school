@@ -86,7 +86,7 @@ app.post('/api/register', async (req, res) => {
         users.push(newUser);
         writeJson('users.json', users);
 
-        const protocol = req.protocol;
+        const protocol = req.headers['x-forwarded-proto'] || req.protocol;
         const host = req.get('host');
         const verifyUrl = `${protocol}://${host}/api/verify-email?token=${verificationToken}`;
 
