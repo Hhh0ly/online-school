@@ -20,19 +20,20 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// --- НАСТРОЙКА ПОЧТЫ (SMTP) ---
+// --- НАСТРОЙКА ПОЧТЫ (Mail.ru SMTP) ---
 const transporter = nodemailer.createTransport({
-    host: 'smtp.yandex.ru', // Для Mail.ru: smtp.mail.ru | Gmail: smtp.gmail.com
-    port: 587,              // Порт 587 работает на Render без блокировок
-    secure: false,          // false для порта 587 (STARTTLS)
+    host: 'smtp.mail.ru',
+    port: 587,
+    secure: false, // TLS
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
     },
     tls: {
-        rejectUnauthorized: false // Предотвращает ошибки сертификатов
+        rejectUnauthorized: false
     }
 });
+
 
 
 function readJson(filename, defaultValue = []) {
